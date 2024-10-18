@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"net/url"
 	"path/filepath"
 	"time"
 
@@ -13,6 +14,12 @@ import (
 type templateData struct {
 	// current year
 	CurrentYear int
+
+	//Hold input data for refill the form after errors detected
+	FormData url.Values
+
+	//hold form errors
+	FormErrors map[string]string
 
 	Snippet *models.Snippet
 
