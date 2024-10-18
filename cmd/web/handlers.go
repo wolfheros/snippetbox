@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/snippetbox/pkg/models"
 )
@@ -113,6 +115,34 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	title := r.PostForm.Get("title")
 	content := r.PostForm.Get("content")
 	expires := r.PostForm.Get("expires")
+
+	// fmt.Printf("Received data from user input: \n%s, %s, %s\n", title, content, expires)
+
+	errors := make(map[string]string)
+
+	// check title is null or not
+	if strings.TrimSpace(title) == "" {
+		errors["title"] = "This field cannot be blank"
+	} else if utf8.RuneCountInString(title) > 100 {
+		errors["title"] = "This field is too long (maximum is 100 characters)"
+	}
+
+	//check the content field isn't blank
+	if strings.TrimSpace(content) == "" {
+		errors["content"] = "This field cannot bee blank"
+	}
+
+	// check expires field isn't blank, and matcheed onee of the value
+	if strings.TrimSpace(expires) == "" {
+		errors["expirs"] = "This field cannot be blank"
+	} else if expires != "365" && expires != "7" && expires != "1" {
+		errors["expires"] = "This field is invalid"
+	}
+
+	if len(errors) > 0 {
+		fmt.Fprint(w, errors)
+		return
+	}
 
 	// create a new snippet record in the database using form data.
 	id, err := app.snippets.Insert(title, content, expires)
