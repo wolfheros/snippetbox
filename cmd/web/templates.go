@@ -2,10 +2,10 @@ package main
 
 import (
 	"html/template"
-	"net/url"
 	"path/filepath"
 	"time"
 
+	"github.com/snippetbox/pkg/forms"
 	"github.com/snippetbox/pkg/models"
 ) // internal package - domainname/projectname/filepath/packagename
 
@@ -15,11 +15,7 @@ type templateData struct {
 	// current year
 	CurrentYear int
 
-	//Hold input data for refill the form after errors detected
-	FormData url.Values
-
-	//hold form errors
-	FormErrors map[string]string
+	Form *forms.Form
 
 	Snippet *models.Snippet
 
