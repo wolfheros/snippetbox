@@ -3,19 +3,23 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"github.com/snippetbox/pkg/models/mysql"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/snippetbox/pkg/models/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/golangcollege/sessions"
 )
 
 // global data structure, initial in main() funtion.
 type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
 }
@@ -25,6 +29,9 @@ func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	// define a new command-line flag for the mysql dsn string.
 	dsn := flag.String("dsn", "web:199219333@/snippetbox?parseTime=true", "MySQL data source name")
+
+	// Define a 32bits long secrect, which is used to authenticate and encrypt.
+	secret := flag.String("secret", "u46IpCV9y5Vlur8YvODJEhgOY8m9JVE4", "Secret Key")
 	// parse command line
 	flag.Parse()
 
@@ -44,6 +51,10 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	// inital session manager, configure expires time
+	session := sessions.New([]byte(*secret))
+	session.Lifetime = 12 * time.Hour
+
 	// Logger is passing to home handler as dependency by use a extral
 	// "application" struct, and handlers are become struct's
 	// method to access the Logger comming with "application" struct
@@ -52,6 +63,7 @@ func main() {
 	app := &application{
 		infoLog:       infoLog,
 		errorLog:      errorLog,
+		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
 	}
