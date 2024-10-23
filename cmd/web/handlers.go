@@ -24,25 +24,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// data := &templateData{Snippets: s}
-
-	// files := []string{
-	// 	"./ui/html/home.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
-
-	// err = ts.Execute(w, data)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// }
-
 	// new cache method
 	app.render(w, r, "home.page.tmpl", &templateData{Snippets: s})
 }
@@ -66,28 +47,10 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//
-	// data := &templateData{Snippet: s}
-
-	// files := []string{
-	// 	"./ui/html/show.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
-
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
-
-	// err = ts.Execute(w, data)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// }
 
 	// new cache method
-	app.render(w, r, "show.page.tmpl", &templateData{Snippet: s})
+	app.render(w, r, "show.page.tmpl", &templateData{
+		Snippet: s})
 }
 
 func (app *application) createSnippetForm(w http.ResponseWriter, r *http.Request) {
@@ -112,11 +75,13 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check every field in the form satisfy the requrement. 
 	form := forms.New(r.PostForm)
 	form.Required("title", "content", "expires")
 	form.MaxLength("title", 100)
 	form.PermittedValues("expires", "365", "7", "1")
 
+	// if any satisfy is missed, there will be errors in form instance.
 	if !form.Valid() {
 		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
 		return
@@ -129,5 +94,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// put() add string value as session data
+	app.session.Put(r, "flash", "Snippet sucessfully created!")
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }

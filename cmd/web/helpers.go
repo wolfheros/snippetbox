@@ -24,15 +24,16 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+// render the template, first it will check the cache first, then it will 
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	//
 	ts, ok := app.templateCache[name]
 	if !ok {
-		app.serverError(w, fmt.Errorf("The template %s does not exist", name))
+		app.serverError(w, fmt.Errorf("the template %s does not exist", name))
 		return
 	}
 
-	// initial a new buffer for save the response incase error happened.
+	// initial a new buffer for save the response in case error happened.
 	buf := new(bytes.Buffer)
 
 	// write the template to the buffer, instead of straight to the http.ResponseWritter.
@@ -57,5 +58,6 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 		td = &templateData{}
 	}
 	td.CurrentYear = time.Now().Year()
+	td.Flash = app.session.PopString(r, "flash")
 	return td
 }

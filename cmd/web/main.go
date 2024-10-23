@@ -44,8 +44,10 @@ func main() {
 		errorLog.Fatal(err)
 	}
 
+	// make sure anything happened, the db can be close.
 	defer db.Close()
 
+	// initial template cache.
 	templateCache, err := newTemplateCache("./ui/html/")
 	if err != nil {
 		errorLog.Fatal(err)
@@ -68,7 +70,7 @@ func main() {
 		templateCache: templateCache,
 	}
 
-	// set errorlog let server use customised logger
+	// initial server, set errorlog let server use customised logger
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
