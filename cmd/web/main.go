@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"flag"
 	"html/template"
@@ -56,6 +57,7 @@ func main() {
 	// inital session manager, configure expires time
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true // set use TLS secure connection
 
 	// Logger is passing to home handler as dependency by use a extral
 	// "application" struct, and handlers are become struct's
@@ -70,14 +72,24 @@ func main() {
 		templateCache: templateCache,
 	}
 
+	// initial a tls.Config, holding the default TLS settings the server to use.
+	tlsConfig := &tls.Config{
+		PreferServerCipherSuites: true,
+		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+	}
+
 	// initial server, set errorlog let server use customised logger
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: errorLog,
 		Handler:  app.routes(),
+		TLSConfig: tlsConfig,
 	}
 	infoLog.Printf("Starting server on %s", *addr)
-	err = srv.ListenAndServe()
+	//err = srv.ListenAndServe()
+
+	// Use TLS version of start server method
+	srv.ListenAndServeTLS("./tls/cert.pem","./tls/key.pem")
 	errorLog.Fatal(err)
 }
 
