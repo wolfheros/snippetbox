@@ -47,7 +47,6 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	// new cache method
 	app.render(w, r, "show.page.tmpl", &templateData{
 		Snippet: s})
@@ -75,7 +74,7 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// check every field in the form satisfy the requrement. 
+	// check every field in the form satisfy the requrement.
 	form := forms.New(r.PostForm)
 	form.Required("title", "content", "expires")
 	form.MaxLength("title", 100)
@@ -99,22 +98,24 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }
 
-func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintln(w, "Display the user signup form")
+func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, "signup.page.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
-func (app *application) signupUser(w http.ResponseWriter, r *http.Request){
-	fmt. Fprintln(w, "Create a new user...")
+func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Create a new user...")
 }
 
-func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request){
+func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Display the user login form...")
 }
 
-func (app *application) loginUser(w http.ResponseWriter, r *http.Request){
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "AUthenticate and login the user...")
 }
 
-func (app *application) logoutUser(w http.ResponseWriter, r *http.Request){
+func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Logout the user...")
 }
