@@ -18,11 +18,12 @@ import (
 
 // global data structure, initial in main() funtion.
 type application struct {
-	errorLog      *log.Logger
-	infoLog       *log.Logger
-	session       *sessions.Session
-	snippets      *mysql.SnippetModel
+	errorLog      	*log.Logger
+	infoLog       	*log.Logger
+	session       	*sessions.Session
+	snippets      	*mysql.SnippetModel
 	templateCache map[string]*template.Template
+	users			*mysql.UserModel
 }
 
 func main() {
@@ -65,11 +66,12 @@ func main() {
 
 	// intial the 'application' data struct, Create application struct instance
 	app := &application{
-		infoLog:       infoLog,
-		errorLog:      errorLog,
-		session:       session,
-		snippets:      &mysql.SnippetModel{DB: db},
+		infoLog:       	infoLog,
+		errorLog:      	errorLog,
+		session:       	session,
+		snippets:      	&mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
+		users: 			&mysql.UserModel{DB: db},
 	}
 
 	// initial a tls.Config, holding the default TLS settings the server to use.
