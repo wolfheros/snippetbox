@@ -18,12 +18,12 @@ import (
 
 // global data structure, initial in main() funtion.
 type application struct {
-	errorLog      	*log.Logger
-	infoLog       	*log.Logger
-	session       	*sessions.Session
-	snippets      	*mysql.SnippetModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	session       *sessions.Session
+	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
-	users			*mysql.UserModel
+	users         *mysql.UserModel
 }
 
 func main() {
@@ -66,35 +66,34 @@ func main() {
 
 	// intial the 'application' data struct, Create application struct instance
 	app := &application{
-		infoLog:       	infoLog,
-		errorLog:      	errorLog,
-		session:       	session,
-		snippets:      	&mysql.SnippetModel{DB: db},
+		infoLog:       infoLog,
+		errorLog:      errorLog,
+		session:       session, // each connection will include a different Context, session use context to passby value.
+		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
-		users: 			&mysql.UserModel{DB: db},
+		users:         &mysql.UserModel{DB: db},
 	}
 
 	// initial a tls.Config, holding the default TLS settings the server to use.
 	tlsConfig := &tls.Config{
 		PreferServerCipherSuites: true,
-		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
+		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
 
 	// initial server, set errorlog let server use customised logger
 	srv := &http.Server{
-		Addr:     *addr,
-		ErrorLog: errorLog,
-		Handler:  app.routes(),
-		TLSConfig: tlsConfig,
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 	infoLog.Printf("Starting server on %s", *addr)
-	//err = srv.ListenAndServe()
 
 	// Use TLS version of start server method
-	srv.ListenAndServeTLS("./tls/cert.pem","./tls/key.pem")
+	srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
 

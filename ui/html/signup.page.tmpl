@@ -3,7 +3,9 @@
 {{define "title"}}Signup{{end}}
 
 {{define "main"}}
-<form action='/user/signup" method='POST' novalidate>
+<form action='/user/signup' method='POST' novalidate>
+    <!-- CSRF token -->
+    <input type='hidden' name='csrf_token' value='{{.CSRFToken}}'>
     {{with .Form}}
         <div>
             <lable>Name:</lable>
@@ -15,7 +17,7 @@
         <div>
             <lable>Email:</lable>
             {{with .Errors.Get "email"}}
-                <lable class='error>{{.}}</lable>
+                <lable class='error'>{{.}}</lable>
             {{end}}
             <input type='email' name='email' value='{{.Get "email"}}'>
         </div>

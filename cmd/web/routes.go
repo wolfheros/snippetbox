@@ -12,7 +12,7 @@ func (app *application) routes() http.Handler {
 	// create a middleware chain containing our `standard` minddlewares.
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	// this middleware is for session management
-	dynamicMiddleware := alice.New(app.session.Enable)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
 	// ServerMux also implemented [Handler]interface.
 	// mux := http.NewServeMux()
 
@@ -25,16 +25,16 @@ func (app *application) routes() http.Handler {
 	// Pat match patterns in the order that they are registerd, and `/snippet/create` equal to `/snippet/:id`,
 	// that's why `/snippet/create` need registed first before `/snippet/:id`, otherwise it will become part of pattern
 	// `/snippet/:id`
-	mux.Get("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippetForm))
-	mux.Post("/snippet/create", dynamicMiddleware.ThenFunc(app.createSnippet))
+	mux.Get("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippetForm))
+	mux.Post("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createSnippet))
 	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showSnippet))
 
 	// Authencate routes
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
-	mux.Post("/user/sigmup", dynamicMiddleware.ThenFunc(app.signupUser))
+	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
 	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
-	mux.Post("/user/logout", dynamicMiddleware.ThenFunc(app.logoutUser))
+	mux.Post("/user/logout", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.logoutUser))
 
 	// static pattern no need change against third-party router Pat.
 	fileServer := http.FileServer(http.Dir("./ui/static/"))

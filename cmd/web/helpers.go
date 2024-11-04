@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/justinas/nosurf"
 	//"github.com/snippetbox/pkg/models"
 )
 
@@ -24,7 +26,7 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
-// render the template, first it will check the cache first, then it will 
+// render the template, first it will check the cache first, then it will
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	//
 	ts, ok := app.templateCache[name]
@@ -52,12 +54,18 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	buf.WriteTo(w)
 }
 
-// add current year to templateData
+// add default data, current year, authentirate or not to templateData,
 func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
 	if td == nil {
 		td = &templateData{}
 	}
+	td.CSRFToken = nosurf.Token(r)
 	td.CurrentYear = time.Now().Year()
 	td.Flash = app.session.PopString(r, "flash")
+	td.IsAuthenticated = app.isAuthenticated(r)
 	return td
+}
+
+func (app *application) isAuthenticated(r *http.Request) bool {
+	return app.session.Exists(r, "authenticatedUserID")
 }

@@ -12,12 +12,15 @@ import (
 // use it hold more than one data during parse template, cause template only
 // support one data in each template.
 type templateData struct {
+	CSRFToken string
 	// current year
 	CurrentYear int
 
-	Flash	string
+	Flash string
 
 	Form *forms.Form
+
+	IsAuthenticated bool // authenticate current user
 
 	Snippet *models.Snippet
 
