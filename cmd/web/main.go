@@ -16,6 +16,11 @@ import (
 	"github.com/golangcollege/sessions"
 )
 
+// define custom contextKey type
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 // global data structure, initial in main() funtion.
 type application struct {
 	errorLog      *log.Logger

@@ -12,7 +12,7 @@ func (app *application) routes() http.Handler {
 	// create a middleware chain containing our `standard` minddlewares.
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	// this middleware is for session management
-	dynamicMiddleware := alice.New(app.session.Enable, noSurf)
+	dynamicMiddleware := alice.New(app.session.Enable, noSurf, app.authenticate)
 	// ServerMux also implemented [Handler]interface.
 	// mux := http.NewServeMux()
 

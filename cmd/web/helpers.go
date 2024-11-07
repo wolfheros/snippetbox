@@ -67,5 +67,13 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
-	return app.session.Exists(r, "authenticatedUserID")
+	// return app.session.Exists(r, "authenticatedUserID")
+
+	// instead of check the session data, here check the context from request whether the user
+	// is authenticated, the request context has been change from authenticated middleware through routes.
+	isAuthenticated, ok := r.Context().Value(contextKeyIsAuthenticated).(bool)
+	if !ok {
+		return false
+	}
+	return isAuthenticated
 }
