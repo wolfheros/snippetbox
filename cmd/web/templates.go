@@ -69,7 +69,10 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 
 // format time for template use
 func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006 at 15:03")
+	if t.IsZero() {
+		return ""
+	}
+	return t.Format("02 Jan 2006 at 15:04")
 }
 
 // what it did in here, its trying to invoke the function in the *.tmpl file to implement dynamic data.
