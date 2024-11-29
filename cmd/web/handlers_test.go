@@ -1,41 +1,22 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
 func TestPing(t *testing.T) {
-	//initialize a new httptest.Response
-	rr := httptest.NewRecorder()
+	//create a new instance of our applicaation struct,
+	// contain of mock loggers
 
-	//Initialize a new dummy http.Request
-	r, err := http.NewRequest(http.MethodGet, "/", nil)
-	if err != nil {
-		t.Fatal(err)
-	}
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
+	defer ts.Close()
 
-	//Call the ping handler function, passing in the httptest.ResponseRecorder
-	ping(rr, r)
+	code, _, body := ts.get(t, "/ping")
 
-	/**
-	*	This is how to test handlers, here are two major functionalities include:
-	 */
-
-	// <1> check that the response status code is 200
-	rs := rr.Result()
-	if rs.StatusCode != http.StatusOK {
-		t.Errorf("want %d; got %d", http.StatusOK, rs.StatusCode)
-	}
-	defer rs.Body.Close()
-
-	// <2> check that the response body is "OK"
-	body, err := ioutil.ReadAll(rs.Body)
-	if err != nil {
-		// can be use to fail the test,
-		t.Fatal(err)
+	if code != http.StatusOK {
+		t.Errorf("want %d; got %d", http.StatusOK, code)
 	}
 
 	if string(body) != "OK" {
